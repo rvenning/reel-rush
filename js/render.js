@@ -97,15 +97,40 @@ Object.assign(Game, {
   drawLineAndBoat(ctx, L, T, R) {
     const sk = this.skin || SKINS[0];
     const surfY = this.screenY(0);           // where the surface/boat sits
-    // fishing line from the boat down to the fish
-    ctx.strokeStyle = sk.line;
+    const headY = FISH_Y - this.fish.r * 0.7;
+    const surfaceVisible = surfY > T - 30;
+
+    // The line fades into the murk while the boat is off-screen. Drawn solid
+    // to a boat that isn't in frame, it renders as a hard white bar the full
+    // height of the screen — anchored to nothing, and on a tall iPad it reads
+    // as a glitch rather than as a fishing line.
+    const topEnd = surfaceVisible ? surfY : T - 20;
+    const rgba = (hex, a) => {
+      const n = parseInt(hex.slice(1), 16);
+      return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${a})`;
+    };
+    const g = ctx.createLinearGradient(0, headY, 0, topEnd);
+    g.addColorStop(0, rgba(sk.line, 0.85));
+    if (surfaceVisible) {
+      g.addColorStop(1, rgba(sk.line, 0.85));
+    } else {
+      g.addColorStop(0.5, rgba(sk.line, 0.28));
+      g.addColorStop(1, rgba(sk.line, 0));
+    }
+    ctx.strokeStyle = g;
     ctx.lineWidth = 1.2;
-    ctx.globalAlpha = 0.9;
+    // A little slack, damped to zero at both ends so it still meets the fish
+    // and the boat exactly — a mathematically straight line looks like a ruled
+    // edge, not something hanging in water.
     ctx.beginPath();
-    ctx.moveTo(this.fishX, FISH_Y - this.fish.r * 0.7);
-    ctx.quadraticCurveTo((this.fishX + LW / 2) / 2, (FISH_Y + surfY) / 2, LW / 2, surfY);
+    ctx.moveTo(this.fishX, headY);
+    const STEPS = 12;
+    for (let i = 1; i <= STEPS; i++) {
+      const t = i / STEPS;
+      const sway = Math.sin(this.elapsed * 1.6 + t * 3.4) * 2.2 * Math.sin(Math.PI * t);
+      ctx.lineTo(this.fishX + (LW / 2 - this.fishX) * t + sway, headY + (topEnd - headY) * t);
+    }
     ctx.stroke();
-    ctx.globalAlpha = 1;
 
     if (surfY > T - 30) {
       // Sky above the waterline. Visible for the last ~20m of every reel-up, so
