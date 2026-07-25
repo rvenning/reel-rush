@@ -1,0 +1,9 @@
+{
+  "name": "reel-rush",
+  "private": true,
+  "description": "Reel Rush — an endless vertical reel-'em-up built on gamekit.",
+  "scripts": {
+    "test": "node --test",
+    "icons": "node tools/make-icons.js"
+  }
+}
