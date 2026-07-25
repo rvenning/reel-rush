@@ -14,6 +14,13 @@
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
+/* Paint the ROOT, not just the body. Installed to the Home Screen, iOS extends
+   the visual viewport past `height:100%` under `viewport-fit=cover`, so the
+   body's gradient stops short of the bottom safe area and the strip behind the
+   home indicator falls through to the page canvas — which renders WHITE. Giving
+   html its own background colour paints the canvas edge to edge. This is
+   invisible in Safari and in any desktop preview; it only shows in standalone. */
+html { background: var(--rr-deep); }
 html, body { height: 100%; overflow: hidden; }
 body {
   font-family: 'Baloo 2', 'Comic Sans MS', system-ui, sans-serif;
@@ -22,6 +29,9 @@ body {
     radial-gradient(ellipse at 20% -10%, #16537a 0%, transparent 55%),
     radial-gradient(ellipse at 85% 115%, #041324 0%, transparent 60%),
     linear-gradient(180deg, #0e3d5c 0%, var(--rr-deep) 68%);
+  /* AFTER the shorthand — the shorthand resets background-color to transparent,
+     so declaring the colour first would silently do nothing. */
+  background-color: var(--rr-deep);
   -webkit-user-select: none; user-select: none;
   -webkit-tap-highlight-color: transparent;
   overscroll-behavior: none;
