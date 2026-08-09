@@ -1,6 +1,6 @@
 // Reel Rush service worker — network-first, cache fallback.
 // BUMP the cache name on ANY shell change or devices keep serving the old build.
-const CACHE = "reel-rush-v3";
+const CACHE = "reel-rush-v4";
 const SHELL = [
   ".",
   "index.html",
